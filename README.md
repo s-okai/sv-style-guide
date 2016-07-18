@@ -1,6 +1,12 @@
 # sv-style-guide
 A SystemVerilog style guide.
 
+## Table of Contents
+- [Packages, `import`, and `include`](https://github.com/s-okai/sv-style-guide#packages-import-and-include)
+- [`always`, `always_ff`, and `always_comb`](https://github.com/s-okai/sv-style-guide#always-always_ff-and-always_comb)
+- [`wire`, `reg`, and `logic`](https://github.com/s-okai/sv-style-guide#wire-reg-and-logic)
+- [`enum` Types](https://github.com/s-okai/sv-style-guide#enum-types)
+
 ## Packages, `import`, and `include`
 
 ### Do Not Use `include`
