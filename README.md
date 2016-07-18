@@ -118,5 +118,64 @@ module sample_module (
 endmodule
 ```
 
+## `enum` Types
+
+### Do Not Use Non-`enum` Types for State Machine States
+Avoid using non-`enum` types (`parameter`, `logic`, `int`, etc) when defining state machine states.
+```verilog
+parameter [2:0] IDLE = 3'b001, RUN = 3'b010, DONE = 3'b001; // Functional bug
+```
+Here we have unintentionally defined multiple states (`IDLE` and `DONE`) with the same value (`3'b001`), causing the state machine to fail.
+```verilog
+parameter [1:0] IDLE = 3'b001, RUN = 3'b010, DONE = 3'b100; // Functional bug
+```
+Here we have unintentionally assigned 3-bit values to 2-bit states. Since Verilog allows width mismatches in assignments, the code compiles, and the state machine will fail. This case is especially common when additional states are added to an existing state machine.
+```verilog
+parameter [2:0] IDLE = 3'b001, RUN = 3'b010, DONE = 3'b100;
+wire [2:0] next_state;
+assign next_state = 3'b111; // Functional bug
+```
+Here we have unintentionally assigned an invalid state value to `next_state`. Once again, this compiles and the state machine will fail.
+
+### Use `enum` for State Machine States
+Use `enum` types for defining states in state machines.
+```systemverilog
+typedef enum logic [2:0] {IDLE = 3'b001, RUN = 3'b010, DONE = 3'b001} state_t;  // Compile error
+
+state_t state;
+state_t next_state;
+```
+As before, we have unintentionally defined multiple states (`IDLE` and `DONE`) with the same value (`3'b001`). However, this time it causes a compile error because `enum` types require the entire enumerated list to be unique.
+
+```systemverilog
+typedef enum logic [1:0] {IDLE = 3'b001, RUN = 3'b010, DONE = 3'b100} state_t;  // Compile error
+
+state_t state;
+state_t next_state;
+```
+As before, we have unintentionally assigned 3-bit values to 2-bit states. However, this time it causes a compile error because `enum` types require the values assigned to the enumerated list to match the width of the type.
+
+```systemverilog
+typedef enum logic [2:0] {IDLE = 3'b001, RUN = 3'b010, DONE = 3'b100} state_t;  // Compile error
+
+state_t state;
+state_t next_state;
+
+assign next_state = 3'b111;
+```
+As before, we have unintentionally assigned an invalid state value to `next_state`. However, since an `enum` type node can only be assigned labels (`IDLE`, `RUN`, `DONE`) or values (`3'b001`, `3'b010`, `3'b100`) from its enumerated list, the code will fail to compile.
+
+We may also choose to leave label values unassigned:
+```systemverilog
+typedef enum logic [2:0] {IDLE, RUN, DONE} state_t;
+
+state_t state;
+state_t next_state;
+
+assign next_state = IDLE;
+```
+Note that this means we can no longer assign `enum` type nodes by value: we must assign them by label (`IDLE`, `RUN`, `DONE`). This often increases readability (think of it as using constants rather than literals) and maitainability (adding additional states is as simple as adding a new label: we do not need to manage all the values by hand).
+
+Simulators often allow you to view `enum` type nodes by label (`IDLE`, `RUN`, `DONE`) instead of value (`3'b001`, `3'b010`, `3'b100`) in waveform view, allowing for easier debugging.
 ## References
 1. [SystemVerilog packages](http://www.asic-world.com/systemverilog/hierarchy1.html)
