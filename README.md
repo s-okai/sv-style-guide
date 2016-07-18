@@ -72,6 +72,51 @@ always_comb
 end
 ```
 
+## `wire`, `reg`, and `logic`
+
+### Do Not Use `wire` and `reg`
+Using `wire` and `reg` should be avoided.
+```verilog
+wire internal_wire;
+reg internal_reg;
+...
+assign internal_wire = value_0;
+
+always @(*)
+  begin
+  internal_reg = value_1;
+end
+```
+The common convention in Verilog is to use `wire` for nodes driven outside of `always` blocks (such as those driven via `assign`), and `reg` for nodes driven in `always` blocks. This is convention is tedious and makes refactoring code difficult. It also fails to add any clarity, since `reg` could be a node driven by either combinational or sequential logic.
+
+### Use `logic`
+Use `logic` instead of `wire` and `reg`. Nodes of type `logic` can be driven either inside or outside of `always` blocks.
+```systemverilog
+logic node_0;
+logic node_1;
+...
+assign node_0 = value_0;
+
+always_comb
+  begin
+  node_1 = value_1;
+end
+```
+It is also good practice to use `logic` for all output port, as it also allows them to be driven either inside or outside of `always` blocks.
+```systemverilog
+module sample_module (
+    output logic output_0,
+    output logic output_1
+  );
+  ...
+  assign output_0 = value_0;
+  
+  always_comb
+    begin
+    output_1 = value_1;
+  end
+endmodule
+```
 
 ## References
 1. [SystemVerilog packages](http://www.asic-world.com/systemverilog/hierarchy1.html)
