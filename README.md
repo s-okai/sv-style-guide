@@ -183,5 +183,22 @@ assign next_state = IDLE;
 Note that this means we can no longer assign `enum` type nodes by value: we must assign them by label (`IDLE`, `RUN`, `DONE`). This often increases readability (think of it as using constants rather than literals) and maitainability (adding additional states is as simple as adding a new label: we do not need to manage all the values by hand).
 
 Simulators often allow you to view `enum` type nodes by label (`IDLE`, `RUN`, `DONE`) instead of value (`3'b001`, `3'b010`, `3'b100`) in waveform view, allowing for easier debugging.
+
+## Blocking and Non-blocking Assignment
+
+### Do Not Use Blocking Assignment (`=`) In `always_ff` Blocks
+Avoid using blocking assignment (`=`) in `always_ff` blocks as it creates an inconsistencies when referencing the assigned node.
+```
+always_ff @(posedge clk)
+  begin
+  c = a + b;
+  e_in <= c;  // The c referenced here is before the flip flop.
+  ...
+end
+
+assign e_out = c; // The c referenced here is after the flip flop.
+```
+If a node assigned using blocking assignment is referenced inside the _same_ `always_ff` block it was assigned in _after_ the assignment, it takes the value of the node _before_ the flip flop. If referenced anywhere else, it takes the value of the node after the flip flop. Blocking assignment creates two separate nodes with the same name, and which one you get depends on _where_ you reference it. This is both functionally confusing and results in poor maintainability.
+
 ## References
 1. [SystemVerilog packages](http://www.asic-world.com/systemverilog/hierarchy1.html)
