@@ -6,6 +6,7 @@ A SystemVerilog style guide.
 - [`always`, `always_ff`, and `always_comb`](https://github.com/s-okai/sv-style-guide#always-always_ff-and-always_comb)
 - [`wire`, `reg`, and `logic`](https://github.com/s-okai/sv-style-guide#wire-reg-and-logic)
 - [`enum` Types](https://github.com/s-okai/sv-style-guide#enum-types)
+- [Blocking and Non-blocking Assignment](https://github.com/s-okai/sv-style-guide#blocking-and-non-blocking-assignment)
 
 ## Packages, `import`, and `include`
 
